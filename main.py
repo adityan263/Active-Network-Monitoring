@@ -88,6 +88,7 @@ def main():
 
     if(choice.get() == 1):
         options = Frame()
+        tk.geometry("1200x800")
         options.pack()
         button1 = Button(options,text="TCP", command=lambda: choice.set(0))
         button2 = Button(options,text="UDP", command=lambda: choice.set(1))
@@ -96,7 +97,16 @@ def main():
         button2.pack(side=TOP)
         button3.pack(side=BOTTOM)
 
+#        def back():
+#           options.destroy()
+#           tk.destroy()
+#           main()
+#        Button(options,text="BACK",command=back).pack(side=RIGHT)
+        
+
         button1.wait_variable(choice)
+
+	
         options.destroy()
 
 
@@ -121,12 +131,14 @@ def main():
                dp = int(dport.get())
                packet = TCPpacket(d,sp,dp)
                output.insert(END, packet.summary()+'\n')
-#               tcpwindow.destroy()
-#               tk.destroy()
-#               exit()
-           buttons = Button(tcpwindow, text="submit", width=6, command=click).grid(row=2,column=0,sticky=W)
-           tcpwindow.mainloop()
+           buttons = Button(tcpwindow, text="Submit", width=6, command=click).grid(row=2,column=0,sticky=W)
 
+           def click_quit():
+               tcpwindow.destroy()
+               tk.destroy()
+               exit()
+           Button(tcpwindow, text="QUIT", width=6, command=click_quit).grid(row=10,column=5,sticky=W)
+           tcpwindow.mainloop()
 
 	#SENDING UDP PACKET
         if(choice.get() == 1):
@@ -139,53 +151,57 @@ def main():
            sport.grid(row = 1, column = 1, sticky = W)
            dport = Entry(udpwindow, width=20, bg='white')
            dport.grid(row = 1, column = 2, sticky = W)
+           output = Text(udpwindow, width=75, height=5, wrap=WORD, background='white')
+           output.grid(row=4, column = 0, sticky = W)
            def click():
                d = destination.get()
-               sp = sport.get()
-               dp = dport.get()
-               print(d,sp,dp)
+               sp = int(sport.get())
+               dp = int(dport.get())
+               packet = UDPpacket(d,sp,dp)
+               output.insert(END, packet.summary()+'\n')
+           buttons = Button(udpwindow, text="submit", width=6, command=click).grid(row=2,column=0,sticky=W)
+           
+           def click_quit():
                udpwindow.destroy()
                tk.destroy()
                exit()
-           buttons = Button(udpwindow, text="submit", width=6, command=click).grid(row=2,column=0,sticky=W)
+           Button(udpwindow, text="QUIT", width=6, command=click_quit).grid(row=10,column=5,sticky=W)
            udpwindow.mainloop()
 
 	#SENDING ICMP PACKETS
         if(choice.get() == 2):
-           print("IN")
            icmpwindow = Frame()
            icmpwindow.pack()
            Label(icmpwindow, text="Enter Source, Destination, Load, Time-to-live, Type ", bg='black', fg='white', font='none 12 bold').grid(row = 0, column=0,sticky=W)
-
            sourceentry = Entry(icmpwindow, width=20, bg='white')
            sourceentry.grid(row = 1, column = 0, sticky = W)
-
            destinationentry = Entry(icmpwindow, width=20, bg='white')
            destinationentry.grid(row = 1, column = 1, sticky = W)
-
            loadentry = Entry(icmpwindow, width=20, bg='white')
            loadentry.grid(row = 1, column = 2, sticky = W)
-
            ttlentry = Entry(icmpwindow, width=20, bg='white')
            ttlentry.grid(row = 1, column = 3, sticky = W)
-	
            typeentry = Entry(icmpwindow, width=20, bg='white')
            typeentry.grid(row = 1, column = 4, sticky = W)
-
+           output = Text(icmpwindow, width=75, height=5, wrap=WORD, background='white')
+           output.grid(row=4, column = 0, sticky = W)
 
            def click():
                source = sourceentry.get()
                destination = destinationentry.get()
                load = loadentry.get()
-               ttl = ttlentry.get()
-               types = typeentry.get()
-               print(source, destination, load, ttl, types)
+               ttl = int(ttlentry.get())
+               types = int(typeentry.get())
+               packet = ICMPpacket(source, destination, ttl, types, load)
+               output.insert(END, packet.summary()+'\n')
+           Button(icmpwindow, text="submit", width=6, command=click).grid(row=2,column=0,sticky=W)
+
+           def click_quit():
                icmpwindow.destroy()
                tk.destroy()
                exit()
-           buttons = Button(icmpwindow, text="submit", width=6, command=click).grid(row=2,column=0,sticky=W)
+           Button(icmpwindow, text="QUIT", width=6, command=click_quit).grid(row=10,column=5,sticky=W)
            icmpwindow.mainloop()
-
 
         options.destroy()
 
