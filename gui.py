@@ -1,5 +1,6 @@
 from tkinter import *
 from globalvars import thelist
+import globalvars 
 
 class MultiListbox(Frame):
     def __init__(self, master, lists):
@@ -26,7 +27,8 @@ class MultiListbox(Frame):
 
     def _select(self, y):
         row = self.lists[0].nearest(y)
-        print(thelist[row][4])
+        globalvars.change = 1
+        globalvars.sel_row= row
         self.selection_clear(0, END)
         self.selection_set(row)
         return 'break'

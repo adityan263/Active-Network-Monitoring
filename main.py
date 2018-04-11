@@ -6,6 +6,7 @@ import os
 import threading
 import time
 from globalvars import thelist
+import globalvars
 from pcap import Pcap
 from Active import *
 
@@ -48,7 +49,7 @@ def fillin():
                 rarp = RARP(ethernet.data)
             elif ethernet.proto == 56710:
                 #Ipv6
-                #ipv6 = IPv6(ethernet.data)
+                ipv6 = IPv6(ethernet.data)
                 pass
         except:
             print(raw_data)
@@ -193,7 +194,8 @@ def main():
         bttns = Frame()
         bttns.pack()
         paused = IntVar()
-        mlb = MultiListbox(tk, (('No.', 5),('Destination', 20), ('Source', 20), ('Protocol', 10)))
+        mlb = MultiListbox(tk, (('No.', 5),('Destination', 20), ('Source', 20),
+            ('Protocol', 10)))
         mlb.pack(expand=YES, fill=BOTH)
         i = 0
         button1 = Button(bttns,text="Start", fg="green", command=lambda: paused.set(0))
@@ -208,6 +210,10 @@ def main():
         button3.pack(side=LEFT)
         button4 = Button(bttns,text="Quit", fg="red",command=lambda: finish.set())
         button4.pack(side=LEFT)
+        text_frame = Frame()
+        text_frame.pack()
+        tex = Text(text_frame,width=454, height=50)
+        tex.pack(side=BOTTOM)
         tk.update()
         t1 = threading.Thread(target=fillin)
         t1.start()
@@ -221,6 +227,14 @@ def main():
                     i = len(thelist)
             except:
                 pass
+            if globalvars.change:
+                try:
+                    tex.delete('1.0', END)
+                except:
+                    pass
+                globalvars.change = 0
+                tex.insert(INSERT, thelist[globalvars.sel_row][4])
+                text_frame.update()
         t1.join()
     tk.destroy()
 
