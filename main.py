@@ -10,11 +10,11 @@ import globalvars
 from pcap import Pcap
 from Active import *
 
-
 finish = threading.Event()
 saving = threading.Event()
 
 def fillin():
+    dictionary = {8:"ipv4",1544:"arp",13576:"rarp",56710:"ipv6"}
     pcap = Pcap("capture.pcap")
     if os.geteuid() != 0:
         print("Root privileges needed")
@@ -41,15 +41,23 @@ def fillin():
                 elif ipv4.proto == 88:
                     #Igmp
                     igmp = IGMP(ipv4.data)
+                thelist.append((i, ipv4.src_ip_addr,
+                    ipv4.target_ip_addr,dictionary[ethernet.proto], raw_data))
             elif ethernet.proto == 1544:
 		#Arp
                 arp = ARP(ethernet.data)
+                thelist.append((i, "-",
+                    "-",dictionary[ethernet.proto], raw_data))
             elif ethernet.proto == 13576:
                 #Rarp
                 rarp = RARP(ethernet.data)
+                thelist.append((i, "-",
+                    "-",dictionary[ethernet.proto], raw_data))
             elif ethernet.proto == 56710:
                 #Ipv6
                 ipv6 = IPv6(ethernet.data)
+                thelist.append((i, ipv6.src_ip_addr,
+                    ipv6.dest_ip_addr,dictionary[ethernet.proto], raw_data))
                 pass
         except:
             print(raw_data)
@@ -58,8 +66,6 @@ def fillin():
             print(len(ethernet.data))
             print("not enough bytes")
             finish.set()
-        thelist.append((i, ethernet.dest_mac_addr,
-            ethernet.src_mac_addr,ethernet.proto, raw_data))
         if saving.is_set():
             pcap.write(raw_data)
         i += 1
