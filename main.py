@@ -92,52 +92,69 @@ def main():
     button1.wait_variable(choice)
     options.destroy()
 
+    #SEND PACKETS
     if(choice.get() == 1):
         options = Frame()
         tk.geometry("1200x800")
         options.pack()
-        button1 = Button(options,text="TCP", command=lambda: choice.set(0))
-        button2 = Button(options,text="UDP", command=lambda: choice.set(1))
-        button3 = Button(options,text="ICMP",command=lambda: choice.set(2))
-        button1.pack(side=TOP)
-        button2.pack(side=TOP)
-        button3.pack(side=BOTTOM)
+        Label(options, text="Choose Packet-Protocol Format",font='none 12 bold').pack()
+        button1 = Button(options,text="TCP", width = 25, command=lambda: choice.set(0))
+        button2 = Button(options,text="UDP", width = 25, command=lambda: choice.set(1))
+        button3 = Button(options,text="ICMP",width = 25, command=lambda: choice.set(2))
+        button4 = Button(options,text="ARP",width = 25, command=lambda: choice.set(3))
+        button4.pack(fill=X, side=TOP)
+        button3.pack(fill=X, side=TOP)
+        button1.pack(fill=X, side=TOP)
+        button2.pack(fill=X, side=TOP)
 
-#        def back():
-#           options.destroy()
-#           tk.destroy()
-#           main()
-#        Button(options,text="BACK",command=back).pack(side=RIGHT)
-        
+        def click_back():
+            options.destroy()
+            tk.destroy()
+            main()
 
+        Button(options, text="BACK", width=25, command=click_back).pack(fill=X, side=TOP)
+        def click_quit():
+            options.destroy()
+            tk.destroy()
+            exit()
+        Button(options, text="QUIT", width=25, command=click_quit).pack(fill=X, side=BOTTOM)
         button1.wait_variable(choice)
-
-	
         options.destroy()
-
 
 	#SENDING TCP PACKET
         if(choice.get() == 0):
            tcpwindow = Frame()
-           tcpwindow.pack()	
-           Label(tcpwindow, text="Enter Destination, Source Port, Destination Port", bg='black', fg='white', font='none 12 bold').grid(row = 0, column=0,sticky=W)
+           tcpwindow.pack()
+           Label(tcpwindow, text="Customize Packet Contents :", bg='black', fg='white', font='none 12 bold').grid(row=0, column=0, sticky=W)
+           Label(tcpwindow, text="Destination", bg='black', fg='white', font='none 12 bold').grid(row=1, column=0, sticky=W)
            destination = Entry(tcpwindow, width=20, bg='white')
-           destination.grid(row = 1, column = 0, sticky = W)
+           destination.grid(row = 1, column = 1, sticky = W)
+           Label(tcpwindow, text="Source Port", bg='black', fg='white', font='none 12 bold').grid(row=2, column=0, sticky=W)
            sport = Entry(tcpwindow, width=20, bg='white')
-           sport.grid(row = 1, column = 1, sticky = W)
+           sport.grid(row = 2, column = 1, sticky = W)
+           Label(tcpwindow, text="Destination Port", bg='black', fg='white', font='none 12 bold').grid(row=3, column=0, sticky=W)
            dport = Entry(tcpwindow, width=20, bg='white')
-           dport.grid(row = 1, column = 2, sticky = W)
+           dport.grid(row = 3, column = 1, sticky = W)
 
-           output = Text(tcpwindow, width=75, height=5, wrap=WORD, background='white')
-           output.grid(row=4, column = 0, sticky = W)
+           output = Listbox(tcpwindow, width=60)
+           output.grid(row=5, column = 0, sticky = W)
 
            def click():
                d = destination.get()
-               sp = int(sport.get())
-               dp = int(dport.get())
-               packet = TCPpacket(d,sp,dp)
+               if not valid_ip(d):
+                   tkMessageBox.showerror("Error","Enter valid Destination IP")
+                   return
+               sp = sport.get()
+               if not valid_port(sp):
+                   tkMessageBox.showerror("Error","Enter valid Source-Port Number")
+                   return
+               dp = dport.get()
+               if not valid_port(dp):
+                   tkMessageBox.showerror("Error","Enter valid Destination-Port Number")
+                   return
+               packet = TCPpacket(d,int(sp),int(dp))
                output.insert(END, packet.summary()+'\n')
-           buttons = Button(tcpwindow, text="Submit", width=6, command=click).grid(row=2,column=0,sticky=W)
+           buttons = Button(tcpwindow, text="Submit", width=6, command=click).grid(row=4,column=1,sticky=W)
 
            def click_quit():
                tcpwindow.destroy()
@@ -150,22 +167,34 @@ def main():
         if(choice.get() == 1):
            udpwindow = Frame()
            udpwindow.pack()
-           Label(udpwindow, text="Enter Destination, Source Port, Destination Port", bg='black', fg='white', font='none 12 bold').grid(row = 0, column=0,sticky=W)
+           Label(udpwindow, text="Customize Packet Contents :", bg='black', fg='white', font='none 12 bold').grid(row=0, column=0, sticky=W)
+           Label(udpwindow, text="Destination", bg='black', fg='white', font='none 12 bold').grid(row=1, column=0, sticky=W)
            destination = Entry(udpwindow, width=20, bg='white')
-           destination.grid(row = 1, column = 0, sticky = W)
+           destination.grid(row = 1, column = 1, sticky = W)
+           Label(udpwindow, text="Source Port", bg='black', fg='white', font='none 12 bold').grid(row=2, column=0, sticky=W)
            sport = Entry(udpwindow, width=20, bg='white')
-           sport.grid(row = 1, column = 1, sticky = W)
+           sport.grid(row = 2, column = 1, sticky = W)
+           Label(udpwindow, text="Destination Port", bg='black', fg='white', font='none 12 bold').grid(row=3, column=0, sticky=W)
            dport = Entry(udpwindow, width=20, bg='white')
-           dport.grid(row = 1, column = 2, sticky = W)
-           output = Text(udpwindow, width=75, height=5, wrap=WORD, background='white')
-           output.grid(row=4, column = 0, sticky = W)
+           dport.grid(row = 3, column = 1, sticky = W)
+           output = Listbox(udpwindow, width=60)
+           output.grid(row=5, column = 0, sticky = W)
            def click():
                d = destination.get()
-               sp = int(sport.get())
-               dp = int(dport.get())
-               packet = UDPpacket(d,sp,dp)
+               if not valid_ip(d):
+                   tkMessageBox.showerror("Error","Enter valid Destination IP")
+                   return
+               sp = sport.get()
+               if not valid_port(sp):
+                   tkMessageBox.showerror("Error","Enter valid Source-Port Number")
+                   return
+               dp = dport.get()
+               if not valid_port(dp):
+                   tkMessageBox.showerror("Error","Enter valid Destination-Port Number")
+                   return
+               packet = UDPpacket(d,int(sp),int(dp))
                output.insert(END, packet.summary()+'\n')
-           buttons = Button(udpwindow, text="submit", width=6, command=click).grid(row=2,column=0,sticky=W)
+           buttons = Button(udpwindow, text="Submit", width=6, command=click).grid(row=4,column=1,sticky=W)
            
            def click_quit():
                udpwindow.destroy()
@@ -178,29 +207,44 @@ def main():
         if(choice.get() == 2):
            icmpwindow = Frame()
            icmpwindow.pack()
-           Label(icmpwindow, text="Enter Source, Destination, Load, Time-to-live, Type ", bg='black', fg='white', font='none 12 bold').grid(row = 0, column=0,sticky=W)
+           Label(icmpwindow, text="Customize Packet Contents :", bg='black', fg='white', font='none 12 bold').grid(row=0, column=0, sticky=W)
+           Label(icmpwindow, text="Source", bg='black', fg='white', font='none 12 bold').grid(row=1, column=0, sticky=W)
            sourceentry = Entry(icmpwindow, width=20, bg='white')
-           sourceentry.grid(row = 1, column = 0, sticky = W)
+           sourceentry.grid(row = 1, column = 1, sticky = W)
+           Label(icmpwindow, text="Destination", bg='black', fg='white', font='none 12 bold').grid(row=2, column=0, sticky=W)
            destinationentry = Entry(icmpwindow, width=20, bg='white')
-           destinationentry.grid(row = 1, column = 1, sticky = W)
+           destinationentry.grid(row = 2, column = 1, sticky = W)
+           Label(icmpwindow, text="Raw Load", bg='black', fg='white', font='none 12 bold').grid(row=3, column=0, sticky=W)
            loadentry = Entry(icmpwindow, width=20, bg='white')
-           loadentry.grid(row = 1, column = 2, sticky = W)
+           loadentry.grid(row = 3, column = 1, sticky = W)
+           Label(icmpwindow, text="Time-to-live", bg='black', fg='white', font='none 12 bold').grid(row=4, column=0, sticky=W)
            ttlentry = Entry(icmpwindow, width=20, bg='white')
-           ttlentry.grid(row = 1, column = 3, sticky = W)
+           ttlentry.grid(row = 4, column = 1, sticky = W)
+           Label(icmpwindow, text="Error Type", bg='black', fg='white', font='none 12 bold').grid(row=5, column=0, sticky=W)
            typeentry = Entry(icmpwindow, width=20, bg='white')
-           typeentry.grid(row = 1, column = 4, sticky = W)
-           output = Text(icmpwindow, width=75, height=5, wrap=WORD, background='white')
-           output.grid(row=4, column = 0, sticky = W)
+           typeentry.grid(row = 5, column = 1, sticky = W)
+           output = Listbox(icmpwindow, width=60)
+           output.grid(row=7, column = 0, sticky = W)
 
            def click():
                source = sourceentry.get()
+               if not valid_ip(source):
+                   tkMessageBox.showerror("Error","Enter valid Destination IP")
+                   return
                destination = destinationentry.get()
+               if not valid_ip(destination):
+                   tkMessageBox.showerror("Error","Enter valid Destination IP")
+                   return
                load = loadentry.get()
-               ttl = int(ttlentry.get())
-               types = int(typeentry.get())
-               packet = ICMPpacket(source, destination, ttl, types, load)
+               ttl = ttlentry.get()
+               if not ttl.isdigit():
+                   return
+               types = typeentry.get()
+               if not types.isdigit():
+                   return
+               packet = ICMPpacket(source, destination, int(ttl), int(types), load)
                output.insert(END, packet.summary()+'\n')
-           Button(icmpwindow, text="submit", width=6, command=click).grid(row=2,column=0,sticky=W)
+           Button(icmpwindow, text="Submit", width=6, command=click).grid(row=6,column=1,sticky=W)
 
            def click_quit():
                icmpwindow.destroy()
@@ -211,6 +255,40 @@ def main():
 
         options.destroy()
 
+	#SENDING ARP packets
+        if(choice.get() == 3):
+           arpwindow = Frame()
+           arpwindow.pack()
+           Label(arpwindow, text="Customize Packet Contents :", bg='black', fg='white', font='none 12 bold').grid(row=0, column=0, sticky=W)
+           Label(arpwindow, text="Source Hardware Address", bg='black', fg='white', font='none 12 bold').grid(row=1, column=0, sticky=W)
+           sourceentry = Entry(arpwindow, width=20, bg='white')
+           sourceentry.grid(row = 1, column = 1, sticky = W)
+           Label(arpwindow, text="Destination IP", bg='black', fg='white', font='none 12 bold').grid(row=2, column=0, sticky=W)
+           destinationentry = Entry(arpwindow, width=20, bg='white')
+           destinationentry.grid(row = 2, column = 1, sticky = W)
+           output = Listbox(arpwindow, width=60)
+           output.grid(row=4, column = 0, sticky = W)
+           def click():
+               source = sourceentry.get()
+               if not valid_hw(source):
+                   tkMessageBox.showerror("Error","Enter valid Source MAC Address")
+                   return
+               destination = destinationentry.get()
+               if not valid_ip(destination):
+                   tkMessageBox.showerror("Error","Enter valid Destination IP")
+                   return
+               packet = ARPpacket(source, destination)
+               output.insert(END, packet.summary()+'\n')
+           Button(arpwindow, text="Submit", width=6, command=click).grid(row=3,column=1,sticky=W)
+
+           def click_quit():
+               arpwindow.destroy()
+               tk.destroy()
+               exit()
+           Button(arpwindow, text="QUIT", width=6, command=click_quit).grid(row=10,column=5,sticky=W)
+           arpwindow.mainloop()
+
+	#READ PACKETS
     elif(choice.get() == 2):
         tk.geometry("500x500")
         bttns = Frame()

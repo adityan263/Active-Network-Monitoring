@@ -1,4 +1,5 @@
-from tkinter import *
+from Tkinter import *
+import tkMessageBox
 from globalvars import thelist
 import globalvars 
 
