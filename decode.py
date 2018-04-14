@@ -32,7 +32,6 @@ class IPv4:
         self.src_ip_addr = convert_ip_address(src)
         self.target_ip_addr = convert_ip_address(target)
         self.data = raw_data[self.header_length:]
-        #print(self.src_ip_addr, self.target_ip_addr)
 
 # Returns properly formatted IP address
 def convert_ip_address(addr):
@@ -44,7 +43,6 @@ class ICMP:
     def __init__(self, raw_data):
         self.type, self.code, self.checksum = struct.unpack('! B B H', raw_data[:4])
         self.data = raw_data[4:]
-        print(self.type)
 
 
 class TCP:
@@ -64,8 +62,7 @@ class TCP:
 class UDP:
 
     def __init__(self, raw_data):
-        self.src_port, self.dest_port, self.size = struct.unpack('! H H 2x H', raw_data[:8])
-        #'! H H H 2x' not sure... in this case 2x is not even needed 
+        self.src_port, self.dest_port, self.size = struct.unpack('! H H H', raw_data[:6])
         self.data = raw_data[8:]
 
 class IGMP:
@@ -107,3 +104,12 @@ class IPv6:
         self.src_ip_addr = convert_ip_address(src_ip)
         self.dest_ip_addr = convert_ip_address(dest_ip)
         self.data = raw_data[40:]
+
+
+class HTTP:
+
+    def __init__(self, raw_data):
+        try:
+            self.data = raw_data.decode('utf-8')
+        except:
+            self.data = raw_data
