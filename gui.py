@@ -1,5 +1,11 @@
-from Tkinter import *
-import tkMessageBox
+try:
+    from tkinter import *
+except:
+    from Tkinter import *
+try:
+    import tkinter.messagebox
+except:
+    import tkMessageBox
 from globalvars import thelist
 import globalvars 
 

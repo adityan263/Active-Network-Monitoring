@@ -9,6 +9,7 @@ from globalvars import thelist
 import globalvars
 from pcap import Pcap
 from Active import *
+import ipgetter
 
 finish = threading.Event()
 saving = threading.Event()
@@ -58,7 +59,6 @@ def fillin():
                 ipv6 = IPv6(ethernet.data)
                 thelist.append((i, ipv6.src_ip_addr,
                     ipv6.dest_ip_addr,dictionary[ethernet.proto], raw_data))
-                pass
         except:
             print(raw_data)
             print(ethernet.proto)
@@ -74,23 +74,24 @@ def fillin():
 def main():
     tk = Tk()
     tk.title("Active Network Monitoring")
-    tk.geometry("200x120")
+    tk.geometry("200x220")
     tk.protocol("WM_DELETE_WINDOW",lambda:finish.is_set())
-    def close_window():
-        tk.destroy()
-        exit()
     options = Frame()
     options.pack(anchor=CENTER)
     choice = IntVar()
+    Label(options, text="Choose Feature",font='none 12 bold').pack()
     button1 = Button(options,text="Send Packets", command=lambda: choice.set(1))
     button2 = Button(options,text="Read Packets", command=lambda: choice.set(2))
-    button3 = Button(options,text="Quit", fg="red",command=close_window)
-    button1.pack()
-    button2.pack()
-    button3.pack()
+    button3 = Button(options,text="Get Public IP", command=lambda: choice.set(3))
+    button4 = Button(options,text="Quit", fg="red",command=lambda: choice.set(0))
+    button1.pack(fill=X, side=TOP)
+    button2.pack(fill=X, side=TOP)
+    button3.pack(fill=X, side=TOP)
+    button4.pack(fill=X, side=TOP)
     
     button1.wait_variable(choice)
-    options.destroy()
+    if choice.get():
+        options.destroy()
 
     #SEND PACKETS
     if(choice.get() == 1):
@@ -98,10 +99,10 @@ def main():
         tk.geometry("1200x800")
         options.pack()
         Label(options, text="Choose Packet-Protocol Format",font='none 12 bold').pack()
-        button1 = Button(options,text="TCP", width = 25, command=lambda: choice.set(0))
-        button2 = Button(options,text="UDP", width = 25, command=lambda: choice.set(1))
-        button3 = Button(options,text="ICMP",width = 25, command=lambda: choice.set(2))
-        button4 = Button(options,text="ARP",width = 25, command=lambda: choice.set(3))
+        button1 = Button(options,text="TCP", width = 25, command=lambda: choice.set(1))
+        button2 = Button(options,text="UDP", width = 25, command=lambda: choice.set(2))
+        button3 = Button(options,text="ICMP",width = 25, command=lambda: choice.set(3))
+        button4 = Button(options,text="ARP",width = 25, command=lambda: choice.set(4))
         button4.pack(fill=X, side=TOP)
         button3.pack(fill=X, side=TOP)
         button1.pack(fill=X, side=TOP)
@@ -113,16 +114,12 @@ def main():
             main()
 
         Button(options, text="BACK", width=25, command=click_back).pack(fill=X, side=TOP)
-        def click_quit():
-            options.destroy()
-            tk.destroy()
-            exit()
-        Button(options, text="QUIT", width=25, command=click_quit).pack(fill=X, side=BOTTOM)
+        Button(options, text="QUIT", width=25, command=lambda: choice.set(0)).pack(fill=X, side=BOTTOM)
         button1.wait_variable(choice)
         options.destroy()
 
 	#SENDING TCP PACKET
-        if(choice.get() == 0):
+        if(choice.get() == 1):
            tcpwindow = Frame()
            tcpwindow.pack()
            Label(tcpwindow, text="Customize Packet Contents :", bg='black', fg='white', font='none 12 bold').grid(row=0, column=0, sticky=W)
@@ -164,7 +161,7 @@ def main():
            tcpwindow.mainloop()
 
 	#SENDING UDP PACKET
-        if(choice.get() == 1):
+        elif(choice.get() == 2):
            udpwindow = Frame()
            udpwindow.pack()
            Label(udpwindow, text="Customize Packet Contents :", bg='black', fg='white', font='none 12 bold').grid(row=0, column=0, sticky=W)
@@ -204,7 +201,7 @@ def main():
            udpwindow.mainloop()
 
 	#SENDING ICMP PACKETS
-        if(choice.get() == 2):
+        elif(choice.get() == 3):
            icmpwindow = Frame()
            icmpwindow.pack()
            Label(icmpwindow, text="Customize Packet Contents :", bg='black', fg='white', font='none 12 bold').grid(row=0, column=0, sticky=W)
@@ -253,10 +250,10 @@ def main():
            Button(icmpwindow, text="QUIT", width=6, command=click_quit).grid(row=10,column=5,sticky=W)
            icmpwindow.mainloop()
 
-        options.destroy()
+           options.destroy()
 
 	#SENDING ARP packets
-        if(choice.get() == 3):
+        elif(choice.get() == 4):
            arpwindow = Frame()
            arpwindow.pack()
            Label(arpwindow, text="Customize Packet Contents :", bg='black', fg='white', font='none 12 bold').grid(row=0, column=0, sticky=W)
@@ -336,6 +333,8 @@ def main():
                 tex.insert(INSERT, thelist[globalvars.sel_row][4])
                 text_frame.update()
         t1.join()
+    elif(choice.get() == 3):
+        print(ipgetter.myip())
     tk.destroy()
 
 if __name__ == '__main__':
